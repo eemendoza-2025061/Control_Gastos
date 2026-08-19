@@ -1,25 +1,32 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { map, take } from 'rxjs';
+import { filter, map, take } from 'rxjs';
 
 export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
   return (route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
+    if (authService.isLoggedIn() && authService.currentUserSubject.value) {
+      const user = authService.currentUserSubject.value;
+      if (allowedRoles.includes(user.role)) {
+        return true;
+      }
+      if (user.role === 'admin') router.navigate(['/admin']);
+      else router.navigate(['/user']);
+      return false;
+    }
+
     return authService.currentUser$.pipe(
+      filter(user => user !== null),
       take(1),
       map(user => {
-        if (user && allowedRoles.includes(user.role)) {
+        if (allowedRoles.includes(user!.role)) {
           return true;
         }
-        
-        // Redirección si no tiene permisos
-        if (user?.role === 'admin') router.navigate(['/admin']);
-        else if (user?.role === 'user') router.navigate(['/user']);
-        else router.navigate(['/login']);
-        
+        if (user!.role === 'admin') router.navigate(['/admin']);
+        else router.navigate(['/user']);
         return false;
       })
     );

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -23,6 +23,15 @@ export class LoginComponent {
 
   isLoading = false;
   errorMessage = '';
+  sessionMessage = '';
+
+  ngOnInit(): void {
+    const nav = this.router.getCurrentNavigation();
+    const state = nav?.extras?.state || history.state;
+    if (state?.sessionMessage) {
+      this.sessionMessage = state.sessionMessage;
+    }
+  }
 
   onSubmit() {
     if (this.loginForm.invalid) {

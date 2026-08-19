@@ -12,6 +12,6 @@ export const config = {
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'admin',
-    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+    expiresIn: process.env.JWT_EXPIRES_IN || '1m',
   }
 };
